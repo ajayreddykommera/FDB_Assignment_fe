@@ -1,25 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useCallback, useEffect, useState } from "react";
+import studentRoutes from "./Routes/studentRoutes";
+import adminRoutes from "./Routes/adminRoutes";
+import instructorRoutes from "./Routes/instructorRoutes";
+import notLoggedRoutes from "./Routes/NotLoggedin";
+import { useRoutes, useLocation } from "react-router-dom";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App = () => {
+  const location = useLocation().pathname;
+  const [route, setRoute] = useState([]);
+  const studentRoute = useRoutes(studentRoutes);
+  const adminRoute = useRoutes(adminRoutes);
+  const notLoggedRoute = useRoutes(notLoggedRoutes);
+  const instructorRoute = useRoutes(instructorRoutes);
+  const localUser = JSON.parse(localStorage.getItem("user"));
+  const [role, setRole] = useState(localUser ? localUser.account_role : "");
+  const init = useCallback(async () => {
+    if (role == "student") {
+      setRoute(studentRoute);
+    } else if (role == "instructor") {
+      setRoute(instructorRoute);
+    } else if (role == "admin") {
+      setRoute(adminRoute);
+    } else {
+      setRoute(notLoggedRoute);
+    }
+  }, [localUser, location]);
+  useEffect(() => {
+    init();
+  }, [localUser, location]);
 
+  return <>{route}</>;
+};
 export default App;
